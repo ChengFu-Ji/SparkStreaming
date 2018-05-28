@@ -1,0 +1,2 @@
+#!/bin/bash
+spark-submit --packages org.apache.bahir:spark-streaming-mqtt_2.11:2.0.0 --executor-cores 2 --executor-memory 2G $1 localhost:1883 streaming
