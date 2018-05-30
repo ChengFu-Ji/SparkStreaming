@@ -1,2 +1,6 @@
 #!/bin/bash
+<<<<<<< HEAD
 spark-submit --packages org.apache.bahir:spark-streaming-mqtt_2.11:2.0.0 --executor-cores 2 --executor-memory 2G $1 $2 $3 
+=======
+spark-submit --packages org.apache.bahir:spark-streaming-mqtt_2.11:2.0.0 --executor-cores 2 --executor-memory 2G $1 $2 $3
+>>>>>>> 6e3dda50d4bbcca5e9e7a76acb49204d2b2303bf
