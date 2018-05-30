@@ -21,5 +21,5 @@ $ ./publisher <CSV_file>
 ```
 使用 Spark 接收資料：
 ```shell
-$ ./subscriber <pythonFile>
+$ ./subscriber <pythonFile> <host:port> <topic>
 ```
