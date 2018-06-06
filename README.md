@@ -13,7 +13,7 @@ Hadoop 為 2.7 版，Spark 為 2.0.0 版
 
 首先，先為 Elasticsearch 新增 index：
 ```shell
-$ curl -XPUT localhost:9200/<indexName>
+$ curl -XPUT localhost:9200/laser
 ```
 使用 MQTT 傳送資料：
 ```shell
