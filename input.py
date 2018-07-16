@@ -3,14 +3,60 @@
 
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
+
 from mqtt import MQTTUtils
 from elasticsearch import Elasticsearch
+
 import json
+import sys
+import time
 import sys
 
 def saveToEs(indexPath, doc):
-	Elasticsearch().index(index = indexPath, doc_type = doc["machine name"], body = doc )
-	
+	Elasticsearch().index(index = "laser", doc_type = doc["machine name"], body = doc )
+
+def convert(x):
+	saveTime = time.strftime('%Y%m%d%H', time.localtime())
+	data = x.split('\n')
+
+	programName = data[0].split(':', 1)[1]
+	machineName = data[1].split(':', 1)[1]
+	materialName = data[2].split(':', 1)[1]
+	workCenter = data[3].split(':', 1)[1]
+	orderOfProcessing = data[4].split(':', 1)[1]
+	startTime = data[5].split(':', 1)[1]
+	finishTime = data[6].split(':', 1)[1]
+	processTime = data[7].split(':', 1)[1]
+	status = data[8].split(':', 1)[1]
+	schedule = data[9].split(':', 1)[1]
+	saveingDateAndTime = data[10].split(':', 1)[1]
+	processingDivision = data[11].split(':', 1)[1]	
+
+	doc = {
+		"program name":programName,
+		"machine name":machineName,
+		"material name":materialName,
+		"work center":workCenter,
+		"order of processing":orderOfProcessing,
+		"start time":startTime,
+		"finish time":finishTime,
+		"process time":processTime,
+		"status":status,
+		"schedule":schedule,
+		"saveing date or time":saveingDateAndTime,
+		"processing division":processingDivision
+	}
+
+	jsonfd = open(saveTime + '.json', 'a')
+	jsonfd.write(json.dumps(doc, indent=4))
+	jsonfd.close()
+
+	csvfd = open(saveTime + '.csv', 'a')
+	csv.writer(csvfd).writerow([programName, machineName, workCenter, orderOfProcessing, startTime, finishTime, processTime, status,     schedule, saveingDateAndTime, processingDivision])
+	csvfd.close()
+
+	return doc
+ 
 def load(x):
 
 	programName = x[0].split(":")[1]
@@ -27,22 +73,6 @@ def load(x):
 	saveingDateAndTime = x[13] + ' ' + x[14]	
 	processingDivision = x[15].split(":")[1]
 
-	doc = {
-		"program name":programName,
- 		"machine name":machineName,
-		"material name":materialName,
- 		"work center":workCenter,
-		"order of processing":orderOfProcessing,
-		"start time":startTime.split(":",1)[1],
-		"finish time":finishTime.split(":",1)[1],
-		"process time":processTime,
-		"status":status,
-		"schedule":schedule,
-		"saveing date or time":saveingDateAndTime.split(":",1)[1],
-		"processing division":processingDivision
-	}
-
-	saveToEs("laser", doc)
 
 	return "program name : " + programName +\
  			"\nmachine name : " + machineName +\
@@ -59,13 +89,15 @@ def load(x):
 
 def main():
 	with SparkContext(appName='MQTTstreaming') as sc:
-		ssc = StreamingContext(sc,5)
+		ssc = StreamingContext(sc,2)
 		
 		broker = 'tcp://' + sys.argv[1]
 		topic = sys.argv[2]
 
 		dataInput = MQTTUtils.createStream(ssc, broker, topic)
-		dataInput.map(lambda x: x.split(" ")).map(load).pprint()
+		result = dataInput.map(lambda x: x.split(" ")).map(load).map(convert)
+		result.foreachRDD(lambda x: foreach(saveToEs))
+		result.pprint()
 
 		ssc.start()
 		ssc.awaitTermination()

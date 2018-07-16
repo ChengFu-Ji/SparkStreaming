@@ -17,9 +17,9 @@ $ curl -XPUT localhost:9200/laser
 ```
 使用 MQTT 傳送資料：
 ```shell
-$ ./publisher <CSV_file>
+$ ./publisher <CSV_file> <time>
 ```
 使用 Spark 接收資料：
 ```shell
-$ ./subscriber <pythonFile> <host:port> <topic>
+$ ./subscriber <pythonFile>
 ```
