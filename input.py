@@ -52,7 +52,7 @@ def convert(x):
 	jsonfd.close()
 
 	csvfd = open(saveTime + '.csv', 'a')
-	csv.writer(csvfd).writerow([programName, machineName, workCenter, orderOfProcessing, startTime, finishTime, processTime, status,     schedule, saveingDateAndTime, processingDivision])
+	csv.writer(csvfd).writerow([programName, machineName, workCenter, orderOfProcessing, startTime, finishTime, processTime, status, schedule, saveingDateAndTime, processingDivision])
 	csvfd.close()
 
 	return doc
@@ -72,7 +72,6 @@ def load(x):
 	schedule = x[12].split(":")[1]
 	saveingDateAndTime = x[13] + ' ' + x[14]	
 	processingDivision = x[15].split(":")[1]
-
 
 	return "program name : " + programName +\
  			"\nmachine name : " + machineName +\
@@ -96,7 +95,7 @@ def main():
 
 		dataInput = MQTTUtils.createStream(ssc, broker, topic)
 		result = dataInput.map(lambda x: x.split(" ")).map(load).map(convert)
-		result.foreachRDD(lambda x: foreach(saveToEs))
+		result.foreachRDD(lambda x: x.foreach(saveToEs))
 		result.pprint()
 
 		ssc.start()
