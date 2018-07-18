@@ -11,6 +11,8 @@
 
 Hadoop 為 2.7 版，Spark 為 2.0.0 版
 
+注意：這裡不會介紹叢集架設的方式。
+
 首先，先為 Elasticsearch 新增 index：
 ```shell
 $ curl -XPUT localhost:9200/laser
